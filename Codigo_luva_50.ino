@@ -1,18 +1,3 @@
-/*
-   MPU-6050 Test
-
-   This simple program reads and prints to the Serial Monitor window
-   the raw X/Y/Z values for the accelerometer and the gyro
-   It also calculates the pitch and roll values as well as the temperature
-   in F and C.
-    
-   Connect VDD to 5V and GND to ground on the MCU
-   Connect SCL to SCL on MCU and SDA to SDA on MCU
-
-  Note that the correction values can be used to put in an offset to adjust the
-  values toward 0 or in the case of the temperature to adjust it to match a
-  reference temperature measurement device.
-*/
 /*  Edgard de Souza T.
  *  Guilherme Ratti
  *  Matheus Luciano
@@ -21,7 +6,7 @@
 #include <math.h>
 
 const int MPU=0x68;
-int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
+int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ; // definindo as variaveis
 double pitch,roll;
 int i=0;
 int f = 0;
@@ -31,7 +16,7 @@ int f = 0;
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-#define LED_BUILTIN 2  //For node_MCU Lolin esp8266
+#define LED_BUILTIN 2  //For node_MCU Lolin esp8266, se quiser verificar se o led acendeu
 // Update these with values suitable for your network.
 
 const char* ssid = "id";
@@ -70,7 +55,7 @@ void setup_wifi() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 }
-
+// Verificando se as mensagens chegaram pelo mqtt, podendo acender o led ou nao.(opcional)
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
@@ -92,7 +77,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
   }
 
 }
-
+// conexão com o mqtt eclipse
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
@@ -121,7 +106,7 @@ void reconnect() {
 //  Initialization
 //===============================================================================
 void setup(){
-
+// inicializando as informacoes do mpu, esp, wifi e mqtt.
 Wire.begin();
 Wire.beginTransmission(MPU);
 Wire.write(0x6B);
@@ -196,7 +181,7 @@ if (!client.connected()) {
     reconnect();
   }
   client.loop();
-
+// transformando os valores lidos pelo mpu em mensagem enviados para o mqtt e captar eles pelo Unity
 snprintf (msg, 100, "%d,%d,%d;%d,%d,%d.", AcX/100, AcY/100, AcZ/100, GyX/1000, -GyY/1000, GyZ/1000);
 client.publish("PIC2022/luva", msg);
 
@@ -204,7 +189,7 @@ client.publish("PIC2022/luva", msg);
 
 delay(66);
 }
-
+// se quiser usar o pitch e roll
 void getAngle(int Vx,int Vy,int Vz) {
 double x = Vx;
 double y = Vy;
